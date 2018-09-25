@@ -54,7 +54,7 @@ public class MinimaxTree {
 		
 		for (Node child : root.getChildren()) {
 //			System.out.println(child.toString());
-			score = betterMinimax(child, true, 1, 1);
+			score = betterMinimax(child, true, 1, 2);
 			if (score > bestScore) {
 				bestScore = score;
 				bestC = choice;
@@ -109,12 +109,12 @@ public class MinimaxTree {
 		System.out.println("Node evaluated: " + n.toString());
 		if (player == 1) {
 			if (n.getScoreS()>n.getScoreN()) {
-				return 5;
-			} else return -5;
+				return n.getScoreS();
+			} else return n.getScoreN();
 		} else if (player == 2) {
 			if (n.getScoreN()>n.getScoreS()) {
-				return 5;
-			} else return -5;
+				return n.getScoreN();
+			} else return n.getScoreS();
 		}
 		return 0;
 		
