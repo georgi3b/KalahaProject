@@ -54,7 +54,7 @@ public class GameState
      */
     public GameState()
     {
-        createBoard(3);
+        createBoard(6);
     }
     
     /**
