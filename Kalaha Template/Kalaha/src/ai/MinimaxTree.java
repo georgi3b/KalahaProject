@@ -33,34 +33,39 @@ public class MinimaxTree {
 
 	}
 	public int findBestMove() {
-		int score = -100;
-		int bestScore = -100;
+		int score = -10000;
+		int bestScore = -10000;
 		int choice = 1, bestC = 1;
 		
-//		for (int j = 1; j < 7; j++) {
-//			GameState currState = this.state.clone();
-//			if (currState.moveIsPossible(j)) {
-//				currState.makeMove(j);	
-//				score = betterMinimax(new Node(currState,1,choice), true, 1, 2);
-//				if (score > bestScore) {
-//					bestScore = score;
-//					bestC = choice;
-//				}
-//				choice++;
-//				
-//			}
-//			}
-		
-		
-		for (Node child : root.getChildren()) {
-//			System.out.println(child.toString());
-			score = betterMinimax(child, true, 1, 2);
-			if (score > bestScore) {
+		for (int j = 1; j < 7; j++) {
+			GameState currState = this.state.clone();
+			if (currState.moveIsPossible(j)) {
+				currState.makeMove(j);	
+				score = Math.max(bestScore,betterMinimax(new Node(currState,1,choice), true, 1, 4));
+				if (score > bestScore) {
+					bestScore = score;
+					bestC = choice;
+				}
+				
+			}
+                        choice++;
+			}
+/*		
+                for (int i = 0; i<root.getChildren().size(); i++){
+                    int val=betterMinimax(root.getChildren().get(i), true, 1, 1);
+                    score = Math.max(bestScore, val);
+                    if (score > bestScore) {
 				bestScore = score;
 				bestC = choice;
 			}
 			choice++;
-		}
+                }
+		*/
+		
+                if (score > bestScore) {
+				bestScore = score;
+				bestC = choice;
+			}
 		return bestC;
 
 	}
@@ -130,57 +135,59 @@ public class MinimaxTree {
 		
 		//Maximising player
 		if (turn) {
-			int max = -100;
+			int max = -10000;
 			//depth first search
 			System.out.println("Max turn");
 			int newD = ++depth;
 			//check all the possible moves
+                        /*
 			for(Node c: n.getChildren()) {
 				if (c.getState().getNextPlayer() != player) {
 					turn = false;
 				}
 				max = Math.max(max,betterMinimax(c,turn,newD,maxDepth));
+			}*/
+			for (int j = 1; j < 7; j++) {
+				GameState currState = n.getState().clone();
+				if (currState.moveIsPossible(j)) {
+					currState.makeMove(j);	
+					if(currState.getNextPlayer()!=player) {
+						turn = false;
+					}
+					
+					max = Math.max(max, betterMinimax(new Node(currState,newD,j),turn,newD,maxDepth));
+				}
+				
 			}
-//			for (int j = 1; j < 7; j++) {
-//				GameState currState = n.getState().clone();
-//				if (currState.moveIsPossible(j)) {
-//					currState.makeMove(j);	
-//					if(currState.getNextPlayer()!=player) {
-//						turn = false;
-//					}
-//					
-//					max = Math.max(max, betterMinimax(new Node(currState,newD,j),turn,newD,maxDepth));
-//				}
-//				
-//			}
 			System.out.println(max);
 			return max;
 			
 		}
 		else {
-			int min = 100;
+			int min = 10000;
 			System.out.println("Min turn");
 			int newD = ++depth;
+                        /*
 			for(Node c: n.getChildren()) {
 				if (c.getState().getNextPlayer() == player) {
 					turn = true;
 				}
 				min = Math.min(min,betterMinimax(c,turn,newD,maxDepth));
-			}
+			}*/
 			//check all the possible moves
-//			for (int j = 1; j < 7; j++) {
-//				GameState currState = n.getState().clone();
-//				if (currState.moveIsPossible(j)) {
-//					currState.makeMove(j);
-//					
-//					if(currState.getNextPlayer()==player) {
-//						turn = true;
-//					}
-//					
-//					min = Math.max(min, betterMinimax(new Node(currState,newD,j),turn,newD,maxDepth));
-//				}
-//				
-//			}
+                        for (int j = 1; j < 7; j++) {
+				GameState currState = n.getState().clone();
+				if (currState.moveIsPossible(j)) {
+					currState.makeMove(j);
+					
+					if(currState.getNextPlayer()==player) {
+						turn = true;
+					}
+					
+					min = Math.min(min, betterMinimax(new Node(currState,newD,j),turn,newD,maxDepth));
+				}
+				
+			}
 			return min;
 		}
 		
