@@ -35,7 +35,7 @@ public class MinimaxTree {
 	public int findBestMove() {
 		int score = -10000;
 		int bestScore = -10000;
-		int choice = 1, bestC = 1;
+    		int choice = 1, bestC = 1;
 		
                 if (this.state.gameEnded()){
                     System.out.println("Returning root.");
@@ -46,7 +46,7 @@ public class MinimaxTree {
 			GameState currState = this.state.clone();
 			if (currState.moveIsPossible(j)) {
 				currState.makeMove(j);	
-				score = Math.max(bestScore,betterMinimax(new Node(currState,1,choice), true, 1, 5));
+				score = Math.max(bestScore,alphaBetaMinimax(new Node(currState,1,choice), true, 1, 5,Integer.MIN_VALUE,Integer.MAX_VALUE));
 				if (score > bestScore) {
 					bestScore = score;
 					bestC = choice;
@@ -122,8 +122,10 @@ public class MinimaxTree {
 		
 	}
 	
-	private int betterMinimax(Node n, boolean turn, int depth, int maxDepth) {
-		
+	      
+        private int alphaBetaMinimax(Node n, boolean turn, int depth, int maxDepth, int alpha, int beta) {
+            		
+                        
 		if (depth >= maxDepth || n.getState().gameEnded()) {
 			System.out.println(depth);
 			return evaluateNode(n);
@@ -149,7 +151,11 @@ public class MinimaxTree {
 						turn = false;
 					}
 					if (!currState.gameEnded()){
-					max = Math.max(max, betterMinimax(new Node(currState,newD,j),turn,newD,maxDepth));
+					max = Math.max(max, alphaBetaMinimax(new Node(currState,newD,j),turn,newD,maxDepth,alpha,beta));
+                                        alpha = Math.max(alpha, max);
+                                        if(beta <= alpha)
+                                        break;
+      
                                         } else {
                                             max = evaluateNode(new Node(currState,newD,j));
                                         }
@@ -164,7 +170,7 @@ public class MinimaxTree {
                         }
                         */
                         
-//			System.out.println(max);
+			System.out.println("This is max:"+max);
 			return max;
 			
 		}
@@ -186,7 +192,10 @@ public class MinimaxTree {
 						turn = true;
 					}
 					if (!currState.gameEnded()){
-					min = Math.min(min, betterMinimax(new Node(currState,newD,j),turn,newD,maxDepth));
+					min = Math.min(min, alphaBetaMinimax(new Node(currState,newD,j),turn,newD,maxDepth, alpha, beta));
+                                        beta= Math.min(beta, min);
+                                        if (beta >= alpha)
+                                                break;
                                         } else 
                                             min = evaluateNode(new Node(currState,newD,j));
 					
@@ -201,7 +210,7 @@ public class MinimaxTree {
                                         
                         }
                         */
-                        
+                        System.out.println("This is min:" +min);
 			return min;
 		}
 		
