@@ -46,7 +46,7 @@ public class MinimaxTree {
                     return ;
                 }
                 else{
-                alphaBetaMinimax(root, true,0,5,Integer.MIN_VALUE,Integer.MAX_VALUE);
+                alphaBetaMinimax(root, true,0,6,Integer.MIN_VALUE,Integer.MAX_VALUE);
                 }               
 
 	}
@@ -191,92 +191,70 @@ public class MinimaxTree {
 		
 	}      
         
-        private int alphaBetaMinimax(Node n, boolean turn, int depth, int maxDepth, int alpha, int beta) {
-            		
-                        
-		if (depth >= maxDepth || n.getState().gameEnded()) {
-			System.out.println(depth);
-			return evaluateNode(n);
-			
-		}
-		
-		//Maximising player
-		if (turn) {
-			int max = Integer.MIN_VALUE;
-			//depth first search
-			System.out.println("Max turn");
-			int newD = ++depth;
-			//check all the possible moves
-                       
-			for (int j = 1; j < 7; j++) {
-				GameState currState = n.getState().clone();
-				if (currState.moveIsPossible(j)) {
-					currState.makeMove(j);	
-                                        
-					if(currState.getNextPlayer()!=player) {
-						turn = false;
-					}
-					if (!currState.gameEnded()){
-                                            max = Math.max(max, alphaBetaMinimax(new Node(currState,newD,j),turn,newD,maxDepth,alpha,beta));
-                                            alpha = Math.max(alpha, max);
-                                            if(beta <= alpha){
-                                                System.out.println("Pruned at depth :"+ depth);
-                                                return alpha;
-                                      
-                                              }
-                                        bestC = j;
-                                        } 
-                                        else {
-                                            max = evaluateNode(new Node(currState,newD,j));
-                                            return max;
-                                        }
-                                        
-                                }       
-			}
-                        
+    private int alphaBetaMinimax(Node n, boolean turn, int depth, int maxDepth, int alpha, int beta) {
+
+        if (depth >= maxDepth || n.getState().gameEnded()) {
+         //   System.out.println(depth);
+            return evaluateNode(n);
+
+        }
+        //Maximising player
+        if (turn) {
+            int max = Integer.MIN_VALUE;
+            //depth first search
+            System.out.println("Max turn");
+            System.out.println("chosen move "+ bestC);
+            int newD = ++depth;
             
-			
-		}
-		else {
-			int min = Integer.MAX_VALUE;
-			System.out.println("Min turn");
-			int newD = ++depth;
-                   
-                         GameState end = n.getState().clone();
-			//check all the possible moves
-                        for (int j = 1; j < 7; j++) {
-				GameState currState = n.getState().clone();
-				if (currState.moveIsPossible(j)) {
-					currState.makeMove(j);
-					 if (j == 6){
-                                            end.makeMove(j);
-                                        }
-					if(currState.getNextPlayer()==player) {
-						turn = true;
-					}
-					if (!currState.gameEnded()){
-                                            min = Math.min(min, alphaBetaMinimax(new Node(currState,newD,j),turn,newD,maxDepth, alpha, beta));
-                                            beta= Math.min(beta, min);
-                                            if (beta <= alpha){
-                                                System.out.println("Pruned at depth :"+ depth);
-                                                 return beta;
-                                            //break;
-                                            }
-                                            bestC = j;
-                                        } 
-                                        
-                                        else {
-                                            min = evaluateNode(new Node(currState,newD,j));
-                                            return min;
-                                        }
-				}
-				
-			}
-                       
-		}
-                return turn?alpha : beta;
-		
-	}
+            //check all the possible moves
+            for (int j = 1; j < 7; j++) {
+                GameState currState = n.getState().clone();
+                if (currState.moveIsPossible(j)) {
+                    currState.makeMove(j);
+                    if (currState.getNextPlayer() != player) {
+                        turn = false;
+                    }
+                    if (beta <= alpha) {
+                        System.out.println("Pruned at depth :" + depth);
+                        break;
+                    }
+                    max = Math.max(max, alphaBetaMinimax(new Node(currState, newD, j), turn, newD, maxDepth, alpha, beta));
+                    alpha = Math.max(alpha, max);
+                    bestC = j;
+                }
+            }
+        } else {
+            int min = Integer.MAX_VALUE;
+            System.out.println("Min turn");
+            int newD = ++depth;
+
+            //check all the possible moves
+            for (int j = 1; j < 7; j++) {
+                GameState currState = n.getState().clone();
+                if (currState.moveIsPossible(j)) {
+                    currState.makeMove(j);
+
+                    if (currState.getNextPlayer() == player) {
+                        turn = true;
+                    }
+
+                    if (beta <= alpha) {
+                        System.out.println("Pruned at depth :" + depth);
+                        break;
+                        //break;
+                    }
+                    min = Math.min(min, alphaBetaMinimax(new Node(currState, newD, j), turn, newD, maxDepth, alpha, beta));
+                    beta = Math.min(beta, min);
+                    bestC = j;
+                }
+
+            }
+
+        }
+        
+        return turn ? alpha : beta;
+
+    }
 }
 
 class Node{
