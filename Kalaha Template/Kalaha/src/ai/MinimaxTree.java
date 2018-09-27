@@ -23,6 +23,7 @@ public class MinimaxTree {
     private int depth;
     private int player;
     boolean turn;
+    int bestC;
 
     public MinimaxTree(GameState state, int player, boolean turn) {
 	
@@ -32,38 +33,21 @@ public class MinimaxTree {
         buildTreeBFS(this.state);
 
 	}
-	public int findBestMove() {
-		int score = -10000;
-		int bestScore = -10000;
-		int choice = 1, bestC = 1;
+    
+    public int getMove(){
+        return bestC;
+    }
+    
+	public void findBestMove() {
+		             
 		
                 if (this.state.gameEnded()){
                     System.out.println("Returning root.");
-                    return root.getChoice();
+                    return ;
                 }
-               
-		for (int j = 1; j < 7; j++) {
-			GameState currState = this.state.clone();
-			if (currState.moveIsPossible(j)) {
-				currState.makeMove(j);	
-				score = Math.max(bestScore,betterMinimax(new Node(currState,1,choice), true, 1, 5));
-				if (score > bestScore) {
-					bestScore = score;
-					bestC = choice;
-				}
-				
-			}
-                        choice++;
-			}
-                                
-                if (score > bestScore) {
-				bestScore = score;
-				bestC = choice;
-		}
-                 
-                return bestC;
-                
-               
+                else{
+                alphaBetaMinimax(root, true,0,5,Integer.MIN_VALUE,Integer.MAX_VALUE);
+                }               
 
 	}
 	
@@ -73,7 +57,7 @@ public class MinimaxTree {
 		root = new Node(state, level, 0);
 		LinkedList<Node> queue = new LinkedList<>();
 		queue.add(root);
-                /*
+             /*   
 		int max_depth = 4;
 		for (int i = 0; i < max_depth; i++) {
 
@@ -204,6 +188,93 @@ public class MinimaxTree {
                         
 			return min;
 		}
+		
+	}      
+        
+        private int alphaBetaMinimax(Node n, boolean turn, int depth, int maxDepth, int alpha, int beta) {
+            		
+                        
+		if (depth >= maxDepth || n.getState().gameEnded()) {
+			System.out.println(depth);
+			return evaluateNode(n);
+			
+		}
+		
+		//Maximising player
+		if (turn) {
+			int max = Integer.MIN_VALUE;
+			//depth first search
+			System.out.println("Max turn");
+			int newD = ++depth;
+			//check all the possible moves
+                       
+			for (int j = 1; j < 7; j++) {
+				GameState currState = n.getState().clone();
+				if (currState.moveIsPossible(j)) {
+					currState.makeMove(j);	
+                                        
+					if(currState.getNextPlayer()!=player) {
+						turn = false;
+					}
+					if (!currState.gameEnded()){
+                                            max = Math.max(max, alphaBetaMinimax(new Node(currState,newD,j),turn,newD,maxDepth,alpha,beta));
+                                            alpha = Math.max(alpha, max);
+                                            if(beta <= alpha){
+                                                System.out.println("Pruned at depth :"+ depth);
+                                                return alpha;
+                                      
+                                              }
+                                        bestC = j;
+                                        } 
+                                        else {
+                                            max = evaluateNode(new Node(currState,newD,j));
+                                            return max;
+                                        }
+                                        
+                                }       
+			}
+                        
+            
+			
+		}
+		else {
+			int min = Integer.MAX_VALUE;
+			System.out.println("Min turn");
+			int newD = ++depth;
+                   
+                         GameState end = n.getState().clone();
+			//check all the possible moves
+                        for (int j = 1; j < 7; j++) {
+				GameState currState = n.getState().clone();
+				if (currState.moveIsPossible(j)) {
+					currState.makeMove(j);
+					 if (j == 6){
+                                            end.makeMove(j);
+                                        }
+					if(currState.getNextPlayer()==player) {
+						turn = true;
+					}
+					if (!currState.gameEnded()){
+                                            min = Math.min(min, alphaBetaMinimax(new Node(currState,newD,j),turn,newD,maxDepth, alpha, beta));
+                                            beta= Math.min(beta, min);
+                                            if (beta <= alpha){
+                                                System.out.println("Pruned at depth :"+ depth);
+                                                 return beta;
+                                            //break;
+                                            }
+                                            bestC = j;
+                                        } 
+                                        
+                                        else {
+                                            min = evaluateNode(new Node(currState,newD,j));
+                                            return min;
+                                        }
+				}
+				
+			}
+                       
+		}
+                return turn?alpha : beta;
 		
 	}
 }
