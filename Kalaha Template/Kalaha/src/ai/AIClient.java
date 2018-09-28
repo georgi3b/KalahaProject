@@ -213,9 +213,9 @@ public class AIClient implements Runnable
      */
     public int getMove(GameState currentBoard)
     {
-        MinimaxTree tree = new MinimaxTree(currentBoard,player,true);
-        tree.findBestMove();
-        int myMove = tree.getMove();
+        GameSimulation gameS = new GameSimulation(currentBoard,player,true);
+        
+        int myMove = gameS.findBestMove();
         addText("Chosen move " + myMove);
         return myMove;
     }
