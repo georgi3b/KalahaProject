@@ -165,6 +165,7 @@ public class AIClient implements Runnable
                             //You only need to change the contents in the getMove()
                             //function.
                             GameState currentBoard = new GameState(currentBoardStr);
+                            
                             int cMove = getMove(currentBoard);
                             
                             //Timer stuff
@@ -215,6 +216,7 @@ public class AIClient implements Runnable
         MinimaxTree tree = new MinimaxTree(currentBoard,player,true);
         tree.findBestMove();
         int myMove = tree.getMove();
+        addText("Chosen move " + myMove);
         return myMove;
     }
     
