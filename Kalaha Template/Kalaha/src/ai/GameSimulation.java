@@ -36,34 +36,112 @@ public class GameSimulation {
             GameState nodeState = this.state.clone();
             if(nodeState.moveIsPossible(i)){
                 nodeState.makeMove(i);
-                Node childI=new Node(nodeState);
+                Node childI = new Node(nodeState);
                 if(childI.state.getNextPlayer() != player){
                     turn = false;
                 }else{
                     turn = true;
                 }
-                int childVal=alphaBetaSearch(childI,turn,1,6, Integer.MIN_VALUE,Integer.MAX_VALUE);
+                int childVal=alphaBeta(childI,turn,1,11, Integer.MIN_VALUE,Integer.MAX_VALUE);
                 if(childVal > rootVal){
                     rootVal=childVal;
+                    //System.out.println("Root value " + rootVal);
                 }
-                map.put(childVal,i);
+                map.put(i,childVal);
                 
             }
         }
-        int maxValueInMap=(Collections.max(map.keySet()));
-        int val = map.get(maxValueInMap);
+        Map.Entry<Integer,Integer> maxEntry = null;
+        int keyMax=0;
         for (Map.Entry<Integer,Integer> entry : map.entrySet()){
-            System.out.println("Value " + entry.getKey() + " Key" + entry.getValue());
+            //System.out.println("Index " + entry.getKey() + " Value" + entry.getValue());
+            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue())>0){
+                maxEntry = entry;
+                keyMax = maxEntry.getKey();
+            }        
         }
-        System.out.println("Best choice " + val);
-        return val;
         
+        System.out.println("Best choice " + keyMax);
+        return keyMax;
+        
+    }
+    
+    public int alphaBeta(Node n,boolean turn, int depth, int maxDepth, int alpha,int beta){
+        if (n.state.gameEnded()||depth>=maxDepth){
+            //n.evaluateSimulation();
+            //System.out.println("Depth of leaf: " + depth);
+            //System.out.println(n.state.toString());
+            return n.val;
+        } else  {
+            if (turn){
+                n.val = Integer.MIN_VALUE;
+                int newD = ++depth;
+                for (int i = 1; i < 7; i++){
+                    GameState nodeState = n.state.clone();
+                    if(nodeState.moveIsPossible(i)){
+                        nodeState.makeMove(i);
+                        Node childI = new Node(nodeState);
+                        if(nodeState.getNextPlayer()!=player){
+                                turn=false;
+                        }else{
+                                turn=true;
+                        }
+                        int childVal=alphaBeta(childI, turn,newD,maxDepth,alpha,beta);
+                        if(childVal > n.val){
+                            n.val = childVal;
+                        }
+                        if(n.val > alpha){
+                            //System.out.println("Aòpha is "  + n.val);
+                            alpha=n.val;
+                        }
+                        if(alpha >= beta){
+                           //System.out.println("Pruned for max at depth " + depth);
+                           //return alpha;
+                           break;
+                        }
+                    }
+                } 
+            }
+            else {
+                n.val = Integer.MAX_VALUE;
+                int newD = ++depth;
+                for (int i = 1; i < 7; i++){
+                    GameState nodeState = n.state.clone();
+                    if(nodeState.moveIsPossible(i)){
+                        nodeState.makeMove(i);
+                        Node childI = new Node(nodeState);
+                        if(nodeState.getNextPlayer()!=player){
+                                turn=false;
+                        }else{
+                                turn=true;
+                        } 
+                        int childVal = alphaBeta(childI, turn,newD,maxDepth,alpha,beta);
+                        if(childVal < n.val){
+                            n.val = childVal;
+                        }
+                        //Beta is updated in the wrong way...
+                        if(n.val < beta){
+                            //System.out.println("Beta is "  + n.val);
+                            beta=n.val; 
+                        }
+                        if(alpha >= beta){
+                            //System.out.println("Pruned for min at depth " + depth);
+                            //return n.val;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return n.val;
     }
     
     public int alphaBetaSearch(Node n,boolean turn, int depth, int maxDepth, int alpha,int beta){
         
         if (n.state.gameEnded()||depth>=maxDepth){
-            n.evaluateSimulation();
+            //n.evaluateSimulation();
+            //System.out.println("Depth of leaf: " + depth);
+            //System.out.println(n.state.toString());
             return n.val;
         } else {
             int newD = ++depth;
@@ -79,10 +157,6 @@ public class GameSimulation {
                          }else{
                             turn=true;
                         }
-                        if(n.val > beta){
-                           //System.out.println("Pruned at depth " + depth + " Value returnd"+ n.val);
-                           return n.val; 
-                        }
                         int childVal=alphaBetaSearch(childI, turn,newD,maxDepth,alpha,beta);
                         if(childVal > n.val){
                             n.val = childVal;
@@ -91,18 +165,18 @@ public class GameSimulation {
                             System.out.println("Apha is "  + n.val);
                             alpha=n.val;
                         }
-
+                        if(alpha >= beta){
+                           //System.out.println("Pruned for max at depth " + depth);
+                           //return alpha;
+                           break;
+                        }
                     }
                     //Minimizing player
                     else{
                         if(nodeState.getNextPlayer()!= player){
                             turn = false;
-                         }else{
+                        }else{
                             turn=true;
-                        }
-                        if(n.val < alpha){
-                            //System.out.println("Pruned at depth " + depth + " Value returnd"+ n.val);
-                            return n.val;
                         }
                         int childVal = alphaBetaSearch(childI, turn,newD,maxDepth,alpha,beta);
                         if(childVal < n.val){
@@ -112,6 +186,11 @@ public class GameSimulation {
                         if(n.val < beta){
                             System.out.println("Beta is "  + n.val);
                             beta=n.val; 
+                        }
+                        if(alpha >= beta){
+                            //System.out.println("Pruned for min at depth " + depth);
+                            //return n.val;
+                            break;
                         }
                     }
                 }
@@ -126,10 +205,11 @@ public class GameSimulation {
     private class Node{
         
         GameState state;
-        int val = Integer.MIN_VALUE;        
+        int val; // = Integer.MIN_VALUE;        
         
         public Node(GameState state){
             this.state = state;
+            this.val = evaluateSimulation();
         }
         
         public int evaluateSimulation(){
