@@ -214,9 +214,7 @@ public class AIClient implements Runnable
     public int getMove(GameState currentBoard)
     {
         GameSimulation gameS = new GameSimulation(currentBoard,player,true);
-        
         int myMove = gameS.findBestMove();
-        addText("Chosen move " + myMove);
         return myMove;
     }
     
